@@ -41,6 +41,8 @@ const RULE_FILES: Record<string, string> = {
   youtube: 'rules/youtube.json',
   ads_core: 'rules/ads-core.json',
   trackers: 'rules/trackers.json',
+  streaming: 'rules/streaming.json',
+  adult: 'rules/adult.json',
 }
 
 const OPTIONAL_RULE_FILES: Record<string, string> = {
