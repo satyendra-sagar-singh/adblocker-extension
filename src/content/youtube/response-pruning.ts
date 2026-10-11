@@ -49,20 +49,41 @@ function proxyMethod<T extends object, K extends keyof T>(target: T, key: K, han
   Object.defineProperty(target, key, { ...descriptor, value: proxied })
 }
 
-function hookJsonParse(): void {
-  proxyMethod(JSON, 'parse', {
+interface Realm {
+  JSON: typeof JSON
+  Response: typeof Response
+}
+
+function hookJsonParse(realm: Realm): void {
+  proxyMethod(realm.JSON, 'parse', {
     apply: (target, thisArg, args) => pruneResponse(Reflect.apply(target as typeof JSON.parse, thisArg, args)),
   })
 }
 
-function hookResponseJson(): void {
-  proxyMethod(Response.prototype, 'json', {
+function hookResponseJson(realm: Realm): void {
+  const ResponseCtor = realm.Response
+  proxyMethod(ResponseCtor.prototype, 'json', {
     apply: (target, thisArg, args) => {
-      const url = thisArg instanceof Response ? thisArg.url : undefined
+      const url = thisArg instanceof ResponseCtor ? thisArg.url : undefined
       const result = Reflect.apply(target as typeof Response.prototype.json, thisArg, args) as Promise<unknown>
       return result.then(value => pruneResponse(value, url))
     },
   })
+}
+
+const HOOKED_REALMS = new WeakSet<object>()
+
+/**
+ * Hooks another same-origin realm (an about:blank iframe YouTube uses to obtain pristine
+ * natives) so responses produced there are pruned too.
+ */
+export function hookRealm(realm: unknown): void {
+  if (typeof realm !== 'object' || realm === null || HOOKED_REALMS.has(realm)) return
+  const candidate = realm as Partial<Realm>
+  if (!candidate.JSON || !candidate.Response) return
+  HOOKED_REALMS.add(realm)
+  hookJsonParse(candidate as Realm)
+  hookResponseJson(candidate as Realm)
 }
 
 const XHR_URL = Symbol('adblocker-xhr-url')
@@ -99,8 +120,8 @@ function interceptInlineData(): void {
 }
 
 export function installResponsePruning(): void {
-  hookJsonParse()
-  hookResponseJson()
+  hookJsonParse(window)
+  hookResponseJson(window)
   hookXmlHttpRequest()
   interceptInlineData()
 }

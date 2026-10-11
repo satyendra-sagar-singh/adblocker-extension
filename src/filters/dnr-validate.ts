@@ -80,6 +80,11 @@ export function validateRule(input: unknown): string[] {
     problems.push('action is required')
   } else if (!DNR_ACTION_TYPES.includes(rule.action.type as never)) {
     problems.push(`unknown action type ${JSON.stringify(rule.action.type)}`)
+  } else if (rule.action.type === 'redirect') {
+    const redirect = isRecord(rule.action.redirect) ? rule.action.redirect : undefined
+    const target = redirect?.extensionPath ?? redirect?.url ?? redirect?.regexSubstitution
+    if (typeof target !== 'string' || target.length === 0) problems.push('redirect action needs extensionPath, url or regexSubstitution')
+    if (typeof redirect?.extensionPath === 'string' && !redirect.extensionPath.startsWith('/')) problems.push('redirect.extensionPath must start with "/"')
   }
 
   if (!isRecord(rule.condition)) {

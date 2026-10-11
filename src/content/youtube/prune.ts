@@ -46,7 +46,8 @@ export function pruneObject(value: unknown, paths: readonly string[]): number {
 function containsMarker(value: unknown, markers: readonly string[], depth: number, maxDepth: number): boolean {
   if (!isObject(value) || depth > maxDepth) return false
   for (const key of Object.keys(value)) {
-    if (markers.includes(key)) return true
+    // Renderer keys mark an ad by their presence; boolean flags such as isAd must be true.
+    if (markers.includes(key) && (typeof value[key] !== 'boolean' || value[key] === true)) return true
     if (containsMarker(value[key], markers, depth + 1, maxDepth)) return true
   }
   return false

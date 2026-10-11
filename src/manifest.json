@@ -37,5 +37,16 @@
   ],
   "declarative_net_request": {
     "rule_resources": []
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "web-accessible/ad_status.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ]
 }

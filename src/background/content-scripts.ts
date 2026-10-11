@@ -32,7 +32,7 @@ export function buildContentScriptRegistrations(settings: Settings): RegisteredS
   }
 
   const youtube = settings.youtube
-  const youtubeWanted = youtube.skipAds || youtube.hideFeedAds || youtube.removeEnforcementDialog
+  const youtubeWanted = youtube.skipAds || youtube.hideFeedAds || youtube.muteAds || youtube.removeEnforcementDialog
   if (youtubeWanted) {
     scripts.push({
       id: SCRIPT_YOUTUBE_MAIN,
@@ -42,6 +42,7 @@ export function buildContentScriptRegistrations(settings: Settings): RegisteredS
       runAt: 'document_start',
       world: 'MAIN',
       allFrames: true,
+      matchOriginAsFallback: true,
       persistAcrossSessions: true,
     })
     scripts.push({
@@ -53,6 +54,7 @@ export function buildContentScriptRegistrations(settings: Settings): RegisteredS
       runAt: 'document_start',
       world: 'ISOLATED',
       allFrames: true,
+      matchOriginAsFallback: true,
       persistAcrossSessions: true,
     })
   }
@@ -69,6 +71,7 @@ const scriptFingerprint = (script: RegisteredScript): string =>
     runAt: script.runAt ?? 'document_idle',
     world: script.world ?? 'ISOLATED',
     allFrames: script.allFrames ?? false,
+    matchOriginAsFallback: script.matchOriginAsFallback ?? false,
   })
 
 export async function syncContentScripts(settings: Settings): Promise<void> {
@@ -78,17 +81,17 @@ export async function syncContentScripts(settings: Settings): Promise<void> {
   const desiredById = new Map(desired.map(script => [script.id, script]))
   const registeredById = new Map(registered.map(script => [script.id, script]))
 
-  const staleIds = registered
-    .filter(script => {
-      const wanted = desiredById.get(script.id)
-      return !wanted || scriptFingerprint(wanted) !== scriptFingerprint(script)
-    })
-    .map(script => script.id)
-  if (staleIds.length) await chrome.scripting.unregisterContentScripts({ ids: staleIds })
+  // Unregister only what is no longer wanted; changed scripts are updated in place so a
+  // failure never leaves a wanted script unregistered.
+  const unwantedIds = registered.filter(script => !desiredById.has(script.id)).map(script => script.id)
+  if (unwantedIds.length) await chrome.scripting.unregisterContentScripts({ ids: unwantedIds })
 
-  const toRegister = desired.filter(script => {
+  const toUpdate = desired.filter(script => {
     const current = registeredById.get(script.id)
-    return !current || staleIds.includes(script.id)
+    return current !== undefined && scriptFingerprint(current) !== scriptFingerprint(script)
   })
+  if (toUpdate.length) await chrome.scripting.updateContentScripts(toUpdate)
+
+  const toRegister = desired.filter(script => !registeredById.has(script.id))
   if (toRegister.length) await chrome.scripting.registerContentScripts(toRegister)
 }

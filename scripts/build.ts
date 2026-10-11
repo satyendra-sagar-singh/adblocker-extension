@@ -33,6 +33,7 @@ const STATIC_FILES = [
   'options/options.css',
   'content/cosmetic/generic.css',
   'content/youtube/youtube.css',
+  'web-accessible/ad_status.js',
 ]
 
 const STATIC_DIRS = ['icons']

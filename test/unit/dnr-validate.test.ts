@@ -23,6 +23,12 @@ describe('validateRule', () => {
     assert.ok(deprecated.some(p => /deprecated/.test(p)))
   })
 
+  it('requires a target for redirect actions', () => {
+    assert.ok(validateRule({ id: 1, action: { type: 'redirect' }, condition: { urlFilter: 'a.b' } }).some(p => /redirect/.test(p)))
+    assert.ok(validateRule({ id: 1, action: { type: 'redirect', redirect: { extensionPath: 'stub.js' } }, condition: { urlFilter: 'a.b' } }).some(p => /start with/.test(p)))
+    assert.deepEqual(validateRule({ id: 1, action: { type: 'redirect', redirect: { extensionPath: '/stub.js' } }, condition: { urlFilter: 'a.b' } }), [])
+  })
+
   it('requires frame resource types for allowAllRequests', () => {
     const bad = validateRule({ id: 1, action: { type: 'allowAllRequests' }, condition: { requestDomains: ['example.com'], resourceTypes: ['script'] } })
     assert.ok(bad.some(p => /allowAllRequests/.test(p)))

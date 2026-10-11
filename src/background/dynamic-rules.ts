@@ -1,6 +1,7 @@
 import { convertAbpFilters } from '../filters/abp-to-dnr.ts'
 import { validateRule } from '../filters/dnr-validate.ts'
 import type { DnrRule } from '../filters/dnr-types.ts'
+import { stableStringify } from '../filters/optimize.ts'
 import type { Settings } from '../shared/settings.ts'
 import {
   CUSTOM_RULE_ID_END,
@@ -43,7 +44,7 @@ export function buildDynamicRules(settings: Settings): DnrRule[] {
 }
 
 const ruleFingerprint = (rule: ChromeRule | DnrRule): string =>
-  JSON.stringify({ id: rule.id, priority: rule.priority ?? 1, action: rule.action, condition: rule.condition })
+  stableStringify({ id: rule.id, priority: rule.priority ?? 1, action: rule.action, condition: rule.condition })
 
 /**
  * Replaces the extension's dynamic rules with the desired set, touching only rules that

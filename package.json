@@ -1,8 +1,34 @@
 {
   "name": "adblocker-extension",
   "version": "0.1.0",
+  "description": "Manifest V3 Chrome extension that blocks ads and trackers site-wide, with first-class YouTube support: response pruning, ad skipping, server-side ad handling and enforcement-wall recovery.",
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "adblock",
+    "ad-blocker",
+    "declarativenetrequest",
+    "youtube",
+    "youtube-adblock",
+    "tracker-blocking",
+    "easylist",
+    "content-script",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Satyendra Sagar Singh",
+    "email": "satyendra.sagar@icloud.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/satyendra-sagar-singh/adblocker-extension.git"
+  },
+  "homepage": "https://github.com/satyendra-sagar-singh/adblocker-extension#readme",
+  "bugs": {
+    "url": "https://github.com/satyendra-sagar-singh/adblocker-extension/issues"
+  },
   "private": true,
-  "description": "Manifest V3 Chrome extension that blocks ads site-wide, with first-class YouTube support",
   "type": "module",
   "engines": {
     "node": ">=22.6"

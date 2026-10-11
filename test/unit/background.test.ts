@@ -63,6 +63,7 @@ describe('buildContentScriptRegistrations', () => {
     assert.equal(main?.world, 'MAIN')
     assert.equal(main?.runAt, 'document_start')
     assert.equal(main?.allFrames, true)
+    assert.equal(main?.matchOriginAsFallback, true)
   })
 
   it('excludes whitelisted hosts from every script and YouTube from the cosmetic script', () => {
@@ -81,5 +82,7 @@ describe('buildContentScriptRegistrations', () => {
     assert.deepEqual(noCosmetic.map(script => script.id), ['youtube-main', 'youtube-isolated'])
     const noYouTube = buildContentScriptRegistrations(settingsWith({ youtube: { skipAds: false, hideFeedAds: false, muteAds: false, removeEnforcementDialog: false } }))
     assert.deepEqual(noYouTube.map(script => script.id), ['cosmetic'])
+    const muteOnly = buildContentScriptRegistrations(settingsWith({ youtube: { skipAds: false, hideFeedAds: false, muteAds: true, removeEnforcementDialog: false } }))
+    assert.deepEqual(muteOnly.map(script => script.id), ['cosmetic', 'youtube-main', 'youtube-isolated'])
   })
 })

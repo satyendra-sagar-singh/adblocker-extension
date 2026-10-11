@@ -53,12 +53,25 @@ function neutralizeScript(script: HTMLScriptElement): void {
   script.remove()
 }
 
-function handleAddedNode(node: Node): void {
-  if (!settings.removeEnforcementDialog) return
-  if (node.nodeName !== 'SCRIPT') return
-  const script = node as HTMLScriptElement
+function inspectScript(script: HTMLScriptElement): void {
   if (script.src || !script.textContent?.includes(NATIVE_BYPASS_SCRIPT_TOKEN)) return
   neutralizeScript(script)
+}
+
+/**
+ * The parser may yield while an inline script is only partially received; the rest then
+ * arrives as text appended to the script, so text mutations inside scripts are inspected too.
+ */
+function handleMutation(mutation: MutationRecord): void {
+  if (mutation.type === 'characterData') {
+    const parent = mutation.target.parentNode
+    if (parent?.nodeName === 'SCRIPT') inspectScript(parent as HTMLScriptElement)
+    return
+  }
+  for (const node of mutation.addedNodes) {
+    if (node.nodeName === 'SCRIPT') inspectScript(node as HTMLScriptElement)
+    else if (node.nodeType === Node.TEXT_NODE && node.parentNode?.nodeName === 'SCRIPT') inspectScript(node.parentNode as HTMLScriptElement)
+  }
 }
 
 function resumePlayback(): void {
@@ -105,14 +118,12 @@ function observeDocument(): void {
   const observer = new MutationObserver(mutations => {
     let elementsAdded = false
     for (const mutation of mutations) {
-      for (const node of mutation.addedNodes) {
-        elementsAdded = true
-        handleAddedNode(node)
-      }
+      if (mutation.addedNodes.length > 0) elementsAdded = true
+      handleMutation(mutation)
     }
     if (elementsAdded) scheduleDialogCheck()
   })
-  observer.observe(document.documentElement, { childList: true, subtree: true })
+  observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true })
 }
 
 function listenToMainWorld(): void {
