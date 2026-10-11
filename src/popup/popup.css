@@ -35,20 +35,43 @@ body {
   background: var(--bg);
 }
 
-.header,
-.footer {
+.header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-}
-
-.header {
   border-bottom: 1px solid var(--border);
 }
 
-.footer {
-  border-top: 1px solid var(--border);
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.icon-button:hover {
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .brand {
@@ -62,7 +85,7 @@ body {
 }
 
 .content {
-  padding: 12px 16px;
+  padding: 12px 16px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;

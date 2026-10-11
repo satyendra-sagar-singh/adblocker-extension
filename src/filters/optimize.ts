@@ -12,7 +12,7 @@ const DOMAIN_ANCHOR_ONLY = /^\|\|([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?
 /** Maximum domains per merged rule; keeps individual rules small for Chrome's indexer. */
 export const DEFAULT_MAX_DOMAINS_PER_RULE = 1000
 
-function stableStringify(value: unknown): string {
+export function stableStringify(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`
   if (typeof value === 'object' && value !== null) {
     const entries = Object.entries(value as Record<string, unknown>)

@@ -117,6 +117,14 @@ describe('request shaping', () => {
     assert.equal(isPlayerRequestBody({ context: { client: {} } }), false)
     assert.equal(isPlayerRequestBody({ videoId: 'x' }), false)
     assert.equal(isPlayerRequestBody('string'), false)
+    // /next and heartbeat bodies carry context + videoId but are not player requests.
+    assert.equal(isPlayerRequestBody({ context: { client: { clientName: 'WEB' } }, videoId: 'x', playlistId: 'PL1', params: 'OAI%3D' }), false)
+    assert.equal(isPlayerRequestBody({ ...body(), heartbeatRequestParams: {} }), false)
+  })
+
+  it('never reshapes a /next body even while a mode is active', () => {
+    const next = { context: { client: { clientName: 'WEB' } }, videoId: 'x', playlistId: 'PL1', params: 'OAI%3D' }
+    assert.deepEqual(shapePlayerRequest(structuredClone(next), 'lactmilli', 1), next)
   })
 
   it('applies each recovery shape and marks the reload', () => {

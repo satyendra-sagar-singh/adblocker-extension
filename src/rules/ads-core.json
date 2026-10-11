@@ -99,7 +99,7 @@
   { "id": 98, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||securepubads.g.doubleclick.net^" } },
   { "id": 99, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||ad.atdmt.com^", "domainType": "thirdParty" } },
   { "id": 100, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||adtago.s3.amazonaws.com^" } },
-  { "id": 500, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||static.doubleclick.net/instream/ad_status.js", "resourceTypes": ["script"] } },
+  { "id": 500, "priority": 5, "action": { "type": "redirect", "redirect": { "extensionPath": "/web-accessible/ad_status.js" } }, "condition": { "urlFilter": "||doubleclick.net/instream/ad_status.js^", "resourceTypes": ["script", "xmlhttprequest"] } },
   { "id": 501, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||www.google.com/recaptcha/", "resourceTypes": ["script", "sub_frame", "xmlhttprequest", "image", "other"] } },
   { "id": 502, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||googleadservices.com/pagead/conversion_async.js", "initiatorDomains": ["google.com"], "resourceTypes": ["script"] } }
 ]

@@ -15,19 +15,19 @@ type AnyRecord = Record<string, unknown>
 
 const isRecord = (value: unknown): value is AnyRecord => typeof value === 'object' && value !== null && !Array.isArray(value)
 
-/** A player request carries an InnerTube context plus the video id. */
+/**
+ * A /youtubei/v1/player body carries the InnerTube context, the video id and a
+ * playbackContext.contentPlaybackContext (signature timestamp etc.). /next,
+ * /updated_metadata and /player/heartbeat bodies also carry context + videoId but no
+ * content playback context, and must never be reshaped.
+ */
 export function isPlayerRequestBody(value: unknown): value is AnyRecord {
   if (!isRecord(value)) return false
   const context = value.context
-  return isRecord(context) && isRecord(context.client) && typeof value.videoId === 'string'
-}
-
-function ensureRecord(parent: AnyRecord, key: string): AnyRecord {
-  const existing = parent[key]
-  if (isRecord(existing)) return existing
-  const created: AnyRecord = {}
-  parent[key] = created
-  return created
+  if (!isRecord(context) || !isRecord(context.client) || typeof value.videoId !== 'string') return false
+  if ('heartbeatRequestParams' in value) return false
+  const playbackContext = value.playbackContext
+  return isRecord(playbackContext) && isRecord(playbackContext.contentPlaybackContext)
 }
 
 /** Mutates and returns the request body for the given mode; a no-op for mode "none". */
@@ -36,8 +36,8 @@ export function shapePlayerRequest<T>(body: T, mode: RequestMode, now: number): 
 
   const request = body as AnyRecord
   const client = (request.context as AnyRecord).client as AnyRecord
-  const playbackContext = ensureRecord(request, 'playbackContext')
-  const contentPlaybackContext = ensureRecord(playbackContext, 'contentPlaybackContext')
+  const playbackContext = request.playbackContext as AnyRecord
+  const contentPlaybackContext = playbackContext.contentPlaybackContext as AnyRecord
 
   contentPlaybackContext.lactMilliseconds = String(now)
   const referer = typeof contentPlaybackContext.referer === 'string' ? contentPlaybackContext.referer : ''

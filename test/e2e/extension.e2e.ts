@@ -171,7 +171,7 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
     const worker = await getServiceWorker()
     const youtube = 'https://www.youtube.com'
     // ownRulesOnly: the maintained EasyList/EasyPrivacy lists may legitimately decide differently.
-    const cases: Array<{ url: string; type: string; initiator?: string; expect: 'block' | 'allow' | 'none'; ownRulesOnly?: boolean }> = [
+    const cases: Array<{ url: string; type: string; initiator?: string; expect: 'block' | 'allow' | 'redirect' | 'none'; ownRulesOnly?: boolean }> = [
       { url: 'https://www.youtube.com/pagead/interaction/?ai=abc', type: 'xmlhttprequest', initiator: youtube, expect: 'block' },
       { url: 'https://www.youtube.com/api/stats/ads?ver=2', type: 'xmlhttprequest', initiator: youtube, expect: 'block' },
       { url: 'https://www.youtube.com/ptracking?html5=1&video_id=abc&cpn=xyz&ei=e1&ptk=youtube_none&pltype=content', type: 'image', initiator: youtube, expect: 'block' },
@@ -183,7 +183,8 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
       { url: 'https://www.youtube.com/api/stats/watchtime?docid=x', type: 'xmlhttprequest', initiator: youtube, expect: 'none' },
       { url: 'https://i.ytimg.com/vi/x/hqdefault.jpg', type: 'image', initiator: youtube, expect: 'none' },
       { url: 'https://www.youtube.com/s/player/abc/player_ias.vflset/en_US/base.js', type: 'script', initiator: youtube, expect: 'none' },
-      { url: 'https://static.doubleclick.net/instream/ad_status.js', type: 'script', initiator: youtube, expect: 'allow' },
+      { url: 'https://static.doubleclick.net/instream/ad_status.js', type: 'script', initiator: youtube, expect: 'redirect' },
+      { url: 'https://static.doubleclick.net/instream/ad_status.js', type: 'script', initiator: 'https://news.example.com', expect: 'redirect' },
       { url: 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', type: 'script', initiator: 'https://news.example.com', expect: 'block' },
       { url: 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js', type: 'script', initiator: 'https://blog.example.com', expect: 'block' },
       { url: 'https://www.google-analytics.com/analytics.js', type: 'script', initiator: 'https://blog.example.com', expect: 'block' },
@@ -398,32 +399,38 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
         playbackContext: { contentPlaybackContext: { referer: 'https://www.youtube.com/watch?v=wall1' } },
       })
       const before = JSON.parse(JSON.stringify(requestBody()))
-      w.__loads = []
-      w.__playerResponse = {
+      const wallResponse = () => ({
         playabilityStatus: {
           status: 'UNPLAYABLE',
           errorScreen: { playerErrorMessageRenderer: { subreason: { runs: [{ text: 'Ad blockers violate the Terms of Service', navigationEndpoint: { commandMetadata: { webCommandMetadata: { url: 'https://support.google.com/youtube/answer/3037019', webPageType: 'WEB_PAGE_TYPE_UNKNOWN' } } } }] } } },
         },
         videoDetails: { videoId: 'wall1' },
         playerConfig: { playbackStartConfig: { startSeconds: 7 } },
-      }
+      })
+      w.__loads = []
+      w.__playerResponse = wallResponse()
       await new Promise(resolve => setTimeout(resolve, 1200))
       const firstLoads = [...w.__loads]
       const afterFirst = JSON.parse(JSON.stringify(requestBody()))
-      // Still walled: the controller must advance to the next shape after the throttle window.
+      // The reload is still in flight (same response object): no second attempt yet.
+      await new Promise(resolve => setTimeout(resolve, 1800))
+      const loadsWhileInFlight = [...w.__loads]
+      // The reload completed but is walled again: advance to the next shape.
+      w.__playerResponse = wallResponse()
       await new Promise(resolve => setTimeout(resolve, 1800))
       const secondLoads = [...w.__loads]
       const afterSecond = JSON.parse(JSON.stringify(requestBody()))
       // Playable again: no further reloads.
       w.__playerResponse = { playabilityStatus: { status: 'OK' }, videoDetails: { videoId: 'wall1' } }
       await new Promise(resolve => setTimeout(resolve, 1800))
-      return { before, firstLoads, afterFirst, secondLoads, afterSecond, finalLoads: [...w.__loads] }
+      return { before, firstLoads, afterFirst, loadsWhileInFlight, secondLoads, afterSecond, finalLoads: [...w.__loads] }
     })
     assert.equal('isInlinePlaybackNoAd' in result.before.playbackContext.contentPlaybackContext, false, 'requests untouched before a wall')
     assert.deepEqual(result.firstLoads, [['wall1', 7]], 'video reloaded once at the saved position')
     assert.equal(result.afterFirst.playbackContext.contentPlaybackContext.isInlinePlaybackNoAd, true, 'first recovery shape applied')
     assert.equal(result.afterFirst.playbackContext.contentPlaybackContext.referer.endsWith('#reloadxhr'), true)
-    assert.equal(result.secondLoads.length, 2, 'second attempt after the throttle window')
+    assert.equal(result.loadsWhileInFlight.length, 1, 'no retry while the reload is in flight')
+    assert.equal(result.secondLoads.length, 2, 'second attempt once the reload came back walled')
     assert.equal(result.afterSecond.context.client.clientScreen, 'CHANNEL', 'second recovery shape applied')
     assert.equal(result.finalLoads.length, 2, 'no reloads once playable')
     await page.close()
@@ -454,6 +461,71 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
     const matched = await matchOutcome(worker, 'https://custom-blocked.example/x.js', 'script', 'https://www.example.com')
     assert.ok(matched.some(rule => rule.rulesetId === '_dynamic' && rule.ruleId === 1000), `custom rule matched: ${JSON.stringify(matched)}`)
     await patchSettings(worker, { customFilters: '' })
+  })
+
+  it('renders the popup and options pages without errors and persists toggles', async () => {
+    const worker = await getServiceWorker()
+    const extensionId = new URL(worker.url()).host
+
+    const popup = await browser.newPage()
+    const popupErrors: string[] = []
+    popup.on('pageerror', error => popupErrors.push(error instanceof Error ? error.message : String(error)))
+    popup.on('console', message => {
+      if (message.type() === 'error') popupErrors.push(message.text())
+    })
+    await popup.goto(`chrome-extension://${extensionId}/popup/popup.html`, { waitUntil: 'load' })
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const popupState = await popup.evaluate(() => ({
+      globalChecked: (document.getElementById('global-toggle') as HTMLInputElement).checked,
+      youtubeStat: document.getElementById('stat-youtube')?.textContent,
+      noSiteVisible: !(document.getElementById('no-site-section') as HTMLElement).hidden,
+    }))
+    assert.deepEqual(popupErrors, [], 'popup logs no errors')
+    assert.equal(popupState.globalChecked, true)
+    assert.equal(popupState.youtubeStat, '2', 'popup shows the recorded YouTube counter')
+    assert.equal(popupState.noSiteVisible, true, 'extension pages are reported as not blockable')
+
+    await popup.$eval('#global-toggle', element => (element as HTMLInputElement).click())
+    await new Promise(resolve => setTimeout(resolve, 800))
+    const afterToggle = await worker.evaluate(async () => ({
+      enabled: ((await chrome.storage.local.get('settings')).settings as { enabled: boolean }).enabled,
+      badge: await chrome.action.getBadgeText({}),
+    }))
+    assert.equal(afterToggle.enabled, false, 'popup toggle persisted to storage')
+    assert.equal(afterToggle.badge, 'OFF')
+    await popup.$eval('#global-toggle', element => (element as HTMLInputElement).click())
+    await new Promise(resolve => setTimeout(resolve, 800))
+    await popup.close()
+
+    const options = await browser.newPage()
+    const optionsErrors: string[] = []
+    options.on('pageerror', error => optionsErrors.push(error instanceof Error ? error.message : String(error)))
+    options.on('console', message => {
+      if (message.type() === 'error') optionsErrors.push(message.text())
+    })
+    await options.goto(`chrome-extension://${extensionId}/options/options.html`, { waitUntil: 'load' })
+    await new Promise(resolve => setTimeout(resolve, 500))
+    await options.type('#whitelist-input', 'Example.ORG')
+    await options.click('#whitelist-form button[type="submit"]')
+    await new Promise(resolve => setTimeout(resolve, 300))
+    await options.type('#custom-filters', '||custom.example^\nexample.com##.ad')
+    await new Promise(resolve => setTimeout(resolve, 900))
+    const optionsState = await options.evaluate(() => ({
+      whitelist: [...document.querySelectorAll('#whitelist-list li span')].map(item => item.textContent),
+      summary: document.getElementById('custom-filters-summary')?.textContent,
+      skipped: [...document.querySelectorAll('#custom-filters-skipped li')].map(item => item.textContent),
+    }))
+    assert.deepEqual(optionsErrors, [], 'options page logs no errors')
+    assert.deepEqual(optionsState.whitelist, ['example.org'], 'hostname normalised and listed')
+    assert.equal(optionsState.summary, '1 rule active, 1 line skipped.')
+    assert.deepEqual(optionsState.skipped, ['example.com##.ad — cosmetic filter'])
+
+    const stored = await worker.evaluate(async () => (await chrome.storage.local.get('settings')).settings as { whitelist: string[]; customFilters: string; enabled: boolean })
+    assert.deepEqual(stored.whitelist, ['example.org'])
+    assert.equal(stored.customFilters, '||custom.example^\nexample.com##.ad')
+    assert.equal(stored.enabled, true)
+    await options.close()
+    await patchSettings(worker, { whitelist: [], customFilters: '' })
   })
 
   it('disables rulesets and scripts when the global switch is off, and restores them', async () => {

@@ -86,6 +86,7 @@ describe('pruneFeedEntries', () => {
       onResponseReceivedActions: [{ appendContinuationItemsAction: { continuationItems: [{ richItemRenderer: { content: { adSlotRenderer: {} } } }, { continuationItemRenderer: {} }] } }],
       entries: [
         { command: { reelWatchEndpoint: { adClientParams: { isAd: true }, videoId: 'ad' } } },
+        { command: { reelWatchEndpoint: { adClientParams: { isAd: false }, videoId: 'organic' } } },
         { command: { reelWatchEndpoint: { videoId: 'short' } } },
       ],
     }
@@ -95,7 +96,10 @@ describe('pruneFeedEntries', () => {
     assert.equal(grid.length, 2)
     assert.deepEqual(grid[0], { richItemRenderer: { content: { videoRenderer: { videoId: 'keep' } } } })
     assert.deepEqual(feed.onResponseReceivedActions[0]!.appendContinuationItemsAction.continuationItems, [{ continuationItemRenderer: {} }])
-    assert.deepEqual(feed.entries, [{ command: { reelWatchEndpoint: { videoId: 'short' } } }])
+    assert.deepEqual(feed.entries, [
+      { command: { reelWatchEndpoint: { adClientParams: { isAd: false }, videoId: 'organic' } } },
+      { command: { reelWatchEndpoint: { videoId: 'short' } } },
+    ])
   })
 
   it('leaves ordinary videos alone even when they mention ad keys deep inside', () => {

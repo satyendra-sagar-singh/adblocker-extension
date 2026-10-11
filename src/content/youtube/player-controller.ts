@@ -48,9 +48,13 @@ type PlayerElement = HTMLElement & PlayerApi
 interface AdSession {
   mutedByUs: boolean
   previousMuted: boolean
+  previousRate: number
   rateChanged: boolean
   counted: boolean
 }
+
+/** Give a reload this long to produce a new player response before trying the next shape. */
+const WALL_RECOVERY_RESPONSE_TIMEOUT_MS = 10000
 
 function querySafe<T extends Element>(root: ParentNode, selector: string): T | null {
   try {
@@ -83,6 +87,7 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
   let lastRecoveryAt = 0
   let recoveryVideoId: string | null = null
   let recoveryAttempts = 0
+  let pendingWallResponse: unknown = null
 
   const findPlayer = (): PlayerElement | null => {
     for (const selector of PLAYER_SELECTORS) {
@@ -137,6 +142,7 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
       return
     }
     if (video.playbackRate !== FALLBACK_PLAYBACK_RATE) {
+      if (!active.rateChanged) active.previousRate = video.playbackRate
       video.playbackRate = FALLBACK_PLAYBACK_RATE
       active.rateChanged = true
     }
@@ -145,7 +151,7 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
   const handleAd = (element: PlayerElement): void => {
     const settings = deps.getSettings()
     const video = findVideo(element)
-    if (!session) session = { mutedByUs: false, previousMuted: video?.muted ?? false, rateChanged: false, counted: false }
+    if (!session) session = { mutedByUs: false, previousMuted: video?.muted ?? false, previousRate: video?.playbackRate ?? 1, rateChanged: false, counted: false }
 
     if (settings.muteAds && video && !session.mutedByUs) {
       session.previousMuted = video.muted
@@ -167,7 +173,7 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
     const video = findVideo(element)
     if (video) {
       if (session.mutedByUs) video.muted = session.previousMuted
-      if (session.rateChanged && video.playbackRate === FALLBACK_PLAYBACK_RATE) video.playbackRate = 1
+      if (session.rateChanged && video.playbackRate === FALLBACK_PLAYBACK_RATE) video.playbackRate = session.previousRate
     }
     session = null
   }
@@ -177,7 +183,10 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
     if (!isEnforcementWall(response)) return
     const videoId = getVideoId(response)
     if (!videoId || typeof element.loadVideoById !== 'function') return
-    if (now() - lastRecoveryAt < WALL_RECOVERY_THROTTLE_MS) return
+    const elapsed = now() - lastRecoveryAt
+    if (elapsed < WALL_RECOVERY_THROTTLE_MS) return
+    // The same wall response still being reported means the reload is in flight; wait for it.
+    if (response === pendingWallResponse && elapsed < WALL_RECOVERY_RESPONSE_TIMEOUT_MS) return
 
     if (recoveryVideoId !== videoId) {
       recoveryVideoId = videoId
@@ -189,6 +198,7 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
     if (!mode) return
     recoveryAttempts += 1
     lastRecoveryAt = now()
+    pendingWallResponse = response
     deps.setMode(mode)
     element.loadVideoById(videoId, getStartSeconds(response, location.search))
   }
@@ -201,7 +211,12 @@ export function createPlayerController(deps: ControllerDependencies): { start: (
     if (!player || isShortsPage()) return
 
     const settings = deps.getSettings()
-    if (settings.removeEnforcementDialog && isWatchPage() && !isPremium()) recoverFromWall(player)
+    if (!isWatchPage()) {
+      // Request shapes only make sense for watch-page player requests; drop them elsewhere.
+      if (deps.getMode() !== 'none') deps.setMode('none')
+    } else if (settings.removeEnforcementDialog && !isPremium()) {
+      recoverFromWall(player)
+    }
 
     if (isAdShowing(player)) handleAd(player)
     else if (session) endAdSession(player)

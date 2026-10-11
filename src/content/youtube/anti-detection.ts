@@ -9,6 +9,7 @@
 
 import { PINNED_CONSTANTS, STALL_TIMER_MS, STALL_TIMER_SCALE } from './config.ts'
 import { defineConstantPath } from './define-constant.ts'
+import { hookRealm } from './response-pruning.ts'
 
 const ABNORMALITY_TOKEN = 'onAbnormalityDetected'
 
@@ -39,7 +40,10 @@ function shrinkStallTimer(): void {
   })
 }
 
-/** Copies the (hooked) natives of this window into a freshly inserted about:blank iframe. */
+/**
+ * Hooks a freshly inserted about:blank iframe's realm and points its fetch/Request at this
+ * window's, so natives obtained through the frame still yield pruned responses.
+ */
 function shareNativesWithFrame(node: unknown): void {
   if (!(node instanceof HTMLIFrameElement)) return
   const src = node.getAttribute('src')
@@ -47,11 +51,12 @@ function shareNativesWithFrame(node: unknown): void {
   try {
     const frameWindow = node.contentWindow as unknown as (Record<string, unknown> & { JSON: typeof JSON }) | null
     if (!frameWindow) return
+    hookRealm(frameWindow)
     frameWindow.fetch = window.fetch
     frameWindow.Request = window.Request
     frameWindow.JSON.parse = JSON.parse
   } catch {
-    // Cross-origin (sandboxed) frame; our content scripts are injected there instead.
+    // Cross-origin (sandboxed) frame: content scripts are injected there via matchOriginAsFallback.
   }
 }
 

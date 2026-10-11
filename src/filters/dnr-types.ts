@@ -63,8 +63,15 @@ export interface DnrRuleCondition {
   excludedRequestMethods?: DnrRequestMethod[]
 }
 
+export interface DnrRedirect {
+  extensionPath?: string
+  url?: string
+  regexSubstitution?: string
+}
+
 export interface DnrRuleAction {
   type: DnrActionType
+  redirect?: DnrRedirect
 }
 
 export interface DnrRule {
