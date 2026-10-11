@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Fixture YouTube watch page</title>
+  </head>
+  <body>
+    <ytd-ad-slot-renderer id="feed-ad">promoted</ytd-ad-slot-renderer>
+    <ytd-rich-item-renderer id="feed-item"><div id="content"><ytd-ad-slot-renderer></ytd-ad-slot-renderer></div></ytd-rich-item-renderer>
+    <div id="player-ads">must stay visible</div>
+    <div id="movie_player" class="html5-video-player">
+      <video class="html5-main-video" id="video" muted></video>
+    </div>
+    <script>
+      var ytInitialPlayerResponse = {
+        playabilityStatus: { status: 'OK' },
+        adPlacements: [{ adPlacementRenderer: {} }],
+        playerAds: [{ playerLegacyDesktopWatchAdsRenderer: {} }],
+        adSlots: [{}],
+        videoDetails: { videoId: 'fixture' },
+        auxiliaryUi: { messageRenderers: { enforcementMessageViewModel: { title: 'blocked' } } }
+      };
+      var ytInitialData = {
+        responseContext: {},
+        contents: {
+          twoColumnBrowseResultsRenderer: {
+            tabs: [{ tabRenderer: { content: { richGridRenderer: { contents: [
+              { richItemRenderer: { content: { adSlotRenderer: {} } } },
+              { richItemRenderer: { content: { videoRenderer: { videoId: 'keep' } } } }
+            ] } } } }]
+          }
+        }
+      };
+      window.__parsedPlayer = JSON.parse(JSON.stringify({
+        responseContext: {},
+        playabilityStatus: { status: 'OK' },
+        adPlacements: [1],
+        playerAds: [1],
+        streamingData: { formats: [] }
+      }));
+      window.google_ad_status = 0;
+
+      // Minimal stand-in for the player API the controller relies on.
+      var player = document.getElementById('movie_player');
+      window.__playerResponse = ytInitialPlayerResponse;
+      window.__stats = { debug_info: 'CSI' };
+      window.__progress = { current: 0, duration: 15, loaded: 15 };
+      window.__seekTo = [];
+      window.__loads = [];
+      player.getPlayerResponse = function () { return window.__playerResponse; };
+      player.getStatsForNerds = function () { return window.__stats; };
+      player.getProgressState = function () { return window.__progress; };
+      player.seekTo = function (seconds) { window.__seekTo.push(seconds); };
+      player.loadVideoById = function (id, start) { window.__loads.push([id, start]); };
+    </script>
+    <script>window.__bypassRan = true; /* marker: window,"fetch" */</script>
+  </body>
+</html>

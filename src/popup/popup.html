@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ad Blocker</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="brand">
+        <img src="../icons/icon-32.png" alt="" width="20" height="20" />
+        <span class="brand-name">Ad Blocker</span>
+      </div>
+      <label class="switch" title="Enable or disable blocking everywhere">
+        <input type="checkbox" id="global-toggle" />
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <main class="content">
+      <section class="site" id="site-section" hidden>
+        <div class="site-row">
+          <div>
+            <div class="site-label" id="site-status-label">Blocking on</div>
+            <div class="site-host" id="site-host"></div>
+          </div>
+          <label class="switch" title="Pause blocking on this site">
+            <input type="checkbox" id="site-toggle" />
+            <span class="slider"></span>
+          </label>
+        </div>
+        <button class="link-button" id="reload-button" hidden>Reload page to apply</button>
+      </section>
+
+      <section class="site" id="no-site-section" hidden>
+        <p class="muted">Blocking does not apply to this page.</p>
+      </section>
+
+      <section class="stats">
+        <div class="stat">
+          <div class="stat-value" id="stat-blocked">–</div>
+          <div class="stat-label">Blocked on this tab</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-youtube">0</div>
+          <div class="stat-label">YouTube ads skipped</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-hidden">0</div>
+          <div class="stat-label">Elements hidden</div>
+        </div>
+      </section>
+
+      <p class="paused-banner" id="paused-banner" hidden>Blocking is turned off everywhere.</p>
+    </main>
+
+    <footer class="footer">
+      <button class="link-button" id="options-button">Settings</button>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

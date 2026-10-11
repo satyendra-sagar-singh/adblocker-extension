@@ -1,0 +1,30 @@
+{
+  "name": "adblocker-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Manifest V3 Chrome extension that blocks ads site-wide, with first-class YouTube support",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "watch": "node scripts/build.ts --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/unit/**/*.test.ts\"",
+    "test:e2e": "node --test \"test/e2e/**/*.e2e.ts\"",
+    "validate:rules": "node scripts/validate-rules.ts",
+    "filters:update": "node scripts/update-filters.ts",
+    "icons": "node scripts/generate-icons.ts",
+    "check": "npm run typecheck && npm run validate:rules && npm test",
+    "package": "node scripts/package.ts",
+    "test:all": "npm run check && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.3.5",
+    "@types/node": "^26.6.5",
+    "esbuild": "^0.28.2",
+    "puppeteer": "^25.13.0",
+    "typescript": "^7.0.2"
+  }
+}

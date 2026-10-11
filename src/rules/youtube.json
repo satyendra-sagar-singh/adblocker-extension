@@ -1,0 +1,17 @@
+[
+  { "id": 1, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||youtube.com/pagead/" } },
+  { "id": 2, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||youtube.com/youtubei/v1/player/ad_break" } },
+  { "id": 3, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||youtube.com/api/stats/ads" } },
+  { "id": 4, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||youtube.com/pcs/activeview" } },
+  { "id": 5, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||youtube.com/_get_ads?" } },
+  { "id": 6, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "_ad_", "resourceTypes": ["media"], "domainType": "thirdParty", "initiatorDomains": ["youtube.com"] } },
+  { "id": 7, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||googlevideo.com/initplayback?source=youtube&*c=tvhtml5&*oad=", "resourceTypes": ["xmlhttprequest"], "initiatorDomains": ["youtube.com"] } },
+  { "id": 8, "priority": 1, "action": { "type": "block" }, "condition": { "requestDomains": ["ads.youtube.com"], "excludedInitiatorDomains": ["ads.youtube.com"] } },
+  { "id": 50, "priority": 5, "action": { "type": "allowAllRequests" }, "condition": { "urlFilter": "||youtube.com/my_video_ad", "resourceTypes": ["main_frame", "sub_frame"] } },
+  { "id": 51, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||ytimg.com^*_banner", "initiatorDomains": ["youtube.com"] } },
+  { "id": 52, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||ad.doubleclick.net/*/adi/com.ytbc/", "initiatorDomains": ["youtube.com"] } },
+  { "id": 53, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||pubads.g.doubleclick.net/gampad/ads?ad_rule=0&d_imp=1&gdfp_req=1&iu=%2F6762%2Fmkt.ythome_1x1", "initiatorDomains": ["youtube.com"] } },
+  { "id": 54, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||pubads.g.doubleclick.net/gampad/ads?ad_rule=0&d_imp=1&gdfp_req=1&impl=ifr", "initiatorDomains": ["youtube.com"] } },
+  { "id": 55, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||youtube-ui.l.google.com^", "resourceTypes": ["sub_frame"] } },
+  { "id": 56, "priority": 5, "action": { "type": "allow" }, "condition": { "urlFilter": "||youtube.com/get_video_info?", "resourceTypes": ["xmlhttprequest"], "initiatorDomains": ["music.youtube.com", "tv.youtube.com"] } }
+]

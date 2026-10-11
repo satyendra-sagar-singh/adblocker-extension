@@ -1,0 +1,42 @@
+/*
+ * YouTube element hiding. Deliberately limited to the structural selectors the
+ * maintained lists ship (EasyList "! youtube" block, AdGuard Base/Annoyances, uAssets):
+ * YouTube treats some cosmetic hiding (notably #player-ads and .video-ads) as a signal
+ * that an ad blocker is present, so nothing beyond these is hidden here. Feed ads are
+ * primarily removed at the data level by the MAIN-world script.
+ */
+
+/* EasyList: desktop feed, sidebar, search and Shorts ad slots */
+#contents > ytd-rich-item-renderer:has(> ytd-ad-slot-renderer),
+ytd-rich-item-renderer:has(> #content > ytd-ad-slot-renderer),
+.grid.ytd-browse > #primary > .style-scope > .ytd-rich-grid-renderer > .ytd-rich-grid-renderer > .ytd-ad-slot-renderer,
+.ytd-rich-item-renderer.style-scope > .ytd-rich-item-renderer > .ytd-ad-slot-renderer.style-scope,
+ytd-item-section-renderer > .ytd-item-section-renderer > ytd-ad-slot-renderer.style-scope,
+.ytd-watch-flexy > .ytd-watch-next-secondary-results-renderer > ytd-ad-slot-renderer.ytd-watch-next-secondary-results-renderer,
+.ytd-section-list-renderer > .ytd-item-section-renderer > ytd-search-pyv-renderer.ytd-item-section-renderer,
+.ytd-two-column-browse-results-renderer > ytd-rich-grid-renderer > #masthead-ad.ytd-rich-grid-renderer,
+#shorts-inner-container > .ytd-shorts:has(> .ytd-reel-video-renderer > ytd-ad-slot-renderer),
+.ytReelMetapanelViewModelHost > .ytReelMetapanelViewModelMetapanelItem > .ytShortsSuggestedActionViewModelStaticHost,
+.ytp-suggested-action > .ytp-suggested-action-badge,
+yt-overlay-product-sticker,
+#sticker-layer,
+#shopping-timely-shelf,
+#description-inner > ytd-merch-shelf-renderer > #main.ytd-merch-shelf-renderer,
+.ytd-watch-flexy > ytd-merch-shelf-renderer > #main.ytd-merch-shelf-renderer,
+/* EasyList: mobile web */
+lazy-list > ad-slot-renderer,
+ytm-rich-item-renderer > ad-slot-renderer,
+ytm-companion-slot[data-content-type] > ytm-companion-ad-renderer,
+/* AdGuard Base: legacy display ads still served to some cohorts */
+ytd-rich-grid-row > #contents > ytd-rich-item-renderer:has(> #content > ytd-display-ad-renderer),
+ytd-rich-item-renderer:has(> #content > ytd-display-ad-renderer),
+/* AdGuard Annoyances / uAssets: Premium promo bars and statement banners */
+yt-mealbar-promo-renderer,
+.yt-mealbar-promo-renderer,
+ytd-popup-container ytd-mealbar-promo-renderer,
+ytmusic-mealbar-promo-renderer,
+ytd-statement-banner-renderer,
+ytmusic-statement-banner-renderer,
+#mealbar\:3 > ytm-mealbar.mealbar-promo-renderer {
+  display: none !important;
+}

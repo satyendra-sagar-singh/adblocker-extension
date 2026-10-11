@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ad Blocker Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main class="page">
+      <h1>Ad Blocker Settings</h1>
+
+      <section class="card">
+        <h2>General</h2>
+        <label class="row">
+          <span>
+            <span class="row-title">Enable blocking</span>
+            <span class="row-help">Master switch for network blocking, element hiding and YouTube handling.</span>
+          </span>
+          <input type="checkbox" data-setting="enabled" />
+        </label>
+        <label class="row">
+          <span>
+            <span class="row-title">Block trackers and analytics</span>
+            <span class="row-help">Enables the tracker ruleset in addition to the ad rulesets.</span>
+          </span>
+          <input type="checkbox" data-setting="blockTrackers" />
+        </label>
+        <label class="row">
+          <span>
+            <span class="row-title">Hide ad placeholders</span>
+            <span class="row-help">Injects element-hiding CSS for common ad containers on all sites.</span>
+          </span>
+          <input type="checkbox" data-setting="cosmeticFiltering" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>YouTube</h2>
+        <label class="row">
+          <span>
+            <span class="row-title">Skip video ads</span>
+            <span class="row-help">Fast-forwards and auto-skips pre-roll and mid-roll ads.</span>
+          </span>
+          <input type="checkbox" data-setting="youtube.skipAds" />
+        </label>
+        <label class="row">
+          <span>
+            <span class="row-title">Mute while an ad plays</span>
+            <span class="row-help">Mutes the player during the fraction of a second an ad may be visible.</span>
+          </span>
+          <input type="checkbox" data-setting="youtube.muteAds" />
+        </label>
+        <label class="row">
+          <span>
+            <span class="row-title">Hide promoted content</span>
+            <span class="row-help">Removes promoted videos, display ads, mastheads and merch shelves.</span>
+          </span>
+          <input type="checkbox" data-setting="youtube.hideFeedAds" />
+        </label>
+        <label class="row">
+          <span>
+            <span class="row-title">Dismiss the ad-blocker warning</span>
+            <span class="row-help">Removes YouTube's "ad blockers violate the Terms of Service" dialog and resumes playback.</span>
+          </span>
+          <input type="checkbox" data-setting="youtube.removeEnforcementDialog" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Paused sites</h2>
+        <p class="help">Blocking is disabled on these hosts and their subdomains.</p>
+        <form class="inline-form" id="whitelist-form">
+          <input type="text" id="whitelist-input" placeholder="example.com" autocomplete="off" spellcheck="false" />
+          <button type="submit">Add</button>
+        </form>
+        <p class="error" id="whitelist-error" hidden></p>
+        <ul class="list" id="whitelist-list"></ul>
+        <p class="help" id="whitelist-empty">No paused sites.</p>
+      </section>
+
+      <section class="card">
+        <h2>Custom filters</h2>
+        <p class="help">
+          One network filter per line in EasyList syntax, e.g. <code>||ads.example.com^</code>,
+          <code>@@||example.com^$document</code> or <code>||example.com/banner*$image,third-party</code>.
+          Cosmetic filters and scriptlets are not supported.
+        </p>
+        <textarea id="custom-filters" rows="8" spellcheck="false"></textarea>
+        <p class="help" id="custom-filters-summary"></p>
+        <ul class="list compact" id="custom-filters-skipped"></ul>
+      </section>
+
+      <section class="card">
+        <h2>Statistics</h2>
+        <dl class="stats">
+          <div><dt>YouTube ads skipped</dt><dd id="stat-youtube">0</dd></div>
+          <div><dt>Elements hidden</dt><dd id="stat-hidden">0</dd></div>
+          <div><dt>Ad payloads removed</dt><dd id="stat-pruned">0</dd></div>
+        </dl>
+        <button type="button" id="reset-stats">Reset statistics</button>
+      </section>
+
+      <p class="saved" id="saved-indicator" hidden>Saved</p>
+    </main>
+    <script src="options.js"></script>
+  </body>
+</html>

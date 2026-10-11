@@ -1,0 +1,112 @@
+/**
+ * Conservative generic element-hiding selectors, derived from the generic section of
+ * EasyList. Only selectors that are unambiguous ad containers are included so that
+ * ordinary page layout is never affected. Site-specific entries live in HOST_SELECTORS.
+ */
+
+export const GENERIC_SELECTORS: readonly string[] = [
+  'ins.adsbygoogle',
+  '.adsbygoogle',
+  'amp-ad',
+  'amp-embed[type="taboola"]',
+  '[id^="div-gpt-ad"]',
+  '[id^="google_ads_iframe"]',
+  '[id^="google_ads_div"]',
+  'iframe[id^="google_ads_frame"]',
+  'iframe[src*="doubleclick.net"]',
+  'iframe[src*="googlesyndication.com"]',
+  'iframe[src*="adnxs.com"]',
+  'iframe[src*="amazon-adsystem.com"]',
+  'iframe[src*="taboola.com"]',
+  'iframe[src*="outbrain.com"]',
+  '[data-ad-slot]',
+  '[data-google-query-id]',
+  '.google-auto-placed',
+  '.ad-slot',
+  '.ad-banner',
+  '.ad-leaderboard',
+  '.ad-skyscraper',
+  '.ad-sidebar',
+  '.ad-wrapper',
+  '.ad-placeholder',
+  '.ad-container',
+  '.ad-unit',
+  '.adunit',
+  '.advertisement',
+  '.advertising',
+  '.sponsored-ad',
+  '.sponsored-content',
+  '.taboola',
+  '.taboola-feed',
+  '#taboola-below-article',
+  '#taboola-below-article-thumbnails',
+  '.OUTBRAIN',
+  '.ob-widget',
+  '.ob-smartfeed-wrapper',
+  '#outbrain_widget_0',
+  '.mgbox',
+  '[class*="AdSense"]',
+  '[id^="ad-leaderboard"]',
+  '[id^="adunit"]',
+  '[id^="adslot"]',
+  '#ad_top',
+  '#ad-top',
+  '#ad_bottom',
+  '#ad-bottom',
+  '#ad-header',
+  '#ad-footer',
+  '#header-ad',
+  '#footer-ad',
+  '#sidebar-ad',
+  '#leaderboard-ad',
+  '#top-ad',
+  '#bottom-ad',
+  '.dfp-ad',
+  '.dfp-slot',
+  '.gpt-ad',
+  '.pub_300x250',
+  '.pub_728x90',
+  '.text-ad',
+  '.textAd',
+  '.text_ad',
+  '.text_ads',
+  '.banner-ad',
+  '.bannerad',
+  '.banner_ad',
+  '.sidebar-ad',
+  '.sticky-ad',
+  '.adsbox',
+  '.ad-box',
+  '.adbox',
+  '.ad-300x250',
+  '.ad-728x90',
+  '.ad-970x250',
+  '.ad-320x50',
+  '.ad-300x600',
+  '.ad-160x600',
+]
+
+/** Site-specific selectors, keyed by hostname (subdomains included). */
+export const HOST_SELECTORS: Readonly<Record<string, readonly string[]>> = {
+  'reddit.com': ['shreddit-ad-post', 'shreddit-comments-page-ad', 'shreddit-dynamic-ad-link', '[data-promoted="true"]'],
+  'twitch.tv': ['.video-player__container--ad', '[data-a-target="video-ad-label"]', '.top-nav__prime'],
+  'facebook.com': ['[data-ad-preview="message"]', '[aria-label="Sponsored"]'],
+  'linkedin.com': ['.ad-banner-container', '.feed-shared-update-v2--is-sponsored'],
+  'twitter.com': ['[data-testid="placementTracking"]', '[data-testid="trendPromotedIndicator"]'],
+  'x.com': ['[data-testid="placementTracking"]', '[data-testid="trendPromotedIndicator"]'],
+  'imdb.com': ['.ipc-ad-slot', '[data-testid="ad-slot"]', '.pro-ads'],
+  'yahoo.com': ['.stream-item-ad', '[data-test-locator="ad-item"]', '#ybar-ad'],
+  'msn.com': ['.ad-container', 'cs-ad', '.outer-ad-container'],
+  'dailymotion.com': ['.dmp_PrerollAd', '[data-testid="ad-slot"]'],
+  'stackoverflow.com': ['.js-zone-container', '#dfp-tlb', '.s-sidebarwidget--ads'],
+  'github.com': [],
+}
+
+export function selectorsForHost(hostname: string): string[] {
+  const host = hostname.toLowerCase()
+  const matched: string[] = []
+  for (const [domain, selectors] of Object.entries(HOST_SELECTORS)) {
+    if (host === domain || host.endsWith(`.${domain}`)) matched.push(...selectors)
+  }
+  return matched
+}

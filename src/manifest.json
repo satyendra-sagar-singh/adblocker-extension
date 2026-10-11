@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Ad Blocker",
+  "description": "Blocks ads and trackers on every site, with dedicated YouTube ad skipping.",
+  "version": "0.0.0",
+  "minimum_chrome_version": "120",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Ad Blocker",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "permissions": [
+    "activeTab",
+    "declarativeNetRequest",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": []
+  }
+}
