@@ -9,7 +9,7 @@ that still reaches the player is skipped, promoted content is hidden, and the
 
 | Layer | Mechanism | Where |
 |---|---|---|
-| Network blocking | `declarativeNetRequest` static rulesets (`youtube`, `ads_core`, `trackers`, optional `easylist`) | `src/rules/*.json` |
+| Network blocking | `declarativeNetRequest` static rulesets (`youtube`, `ads_core`, `trackers`, `streaming`, optional `easylist`) | `src/rules/*.json` |
 | Per-site pause | Dynamic `allowAllRequests` rule per whitelisted host, plus content scripts excluded on that host | `src/background/dynamic-rules.ts`, `src/background/content-scripts.ts` |
 | Custom filters | EasyList-syntax lines converted to dynamic rules at save time | `src/filters/abp-to-dnr.ts` |
 | YouTube data pruning | MAIN-world script at `document_start`: hooks `JSON.parse` / `Response.prototype.json`, intercepts `ytInitialPlayerResponse` / `ytInitialData`, pins anti-ad-block flags | `src/content/youtube/main-world.ts` |
@@ -48,7 +48,9 @@ and press the reload icon on the extension card.
 
 ## Filter lists
 
-Three hand-maintained rulesets ship with the extension (`src/rules/`). To add the full
+Four hand-maintained rulesets ship with the extension (`src/rules/`); `streaming` holds
+site-specific ad rules for Twitch, Dailymotion and Spotify, whose element-hiding selectors (plus
+Vimeo and Crunchyroll) live in `HOST_SELECTORS` in `src/content/cosmetic/selectors.ts`. To add the full
 EasyList + EasyPrivacy + Peter Lowe's list converted to `declarativeNetRequest` rules:
 
 ```bash

@@ -9,14 +9,14 @@ import { DEFAULT_SETTINGS, type Settings } from '../../src/shared/settings.ts'
 const settingsWith = (patch: Partial<Settings>): Settings => ({ ...DEFAULT_SETTINGS, ...patch, youtube: { ...DEFAULT_SETTINGS.youtube, ...(patch.youtube ?? {}) } })
 
 describe('selectEnabledRulesets', () => {
-  const available = ['youtube', 'ads_core', 'trackers', 'easylist']
+  const available = ['youtube', 'ads_core', 'trackers', 'streaming', 'easylist']
 
   it('enables everything by default', () => {
     assert.deepEqual(selectEnabledRulesets(DEFAULT_SETTINGS, available), available)
   })
 
   it('drops trackers when disabled and everything when paused', () => {
-    assert.deepEqual(selectEnabledRulesets(settingsWith({ blockTrackers: false }), available), ['youtube', 'ads_core', 'easylist'])
+    assert.deepEqual(selectEnabledRulesets(settingsWith({ blockTrackers: false }), available), ['youtube', 'ads_core', 'streaming', 'easylist'])
     assert.deepEqual(selectEnabledRulesets(settingsWith({ enabled: false }), available), [])
   })
 })

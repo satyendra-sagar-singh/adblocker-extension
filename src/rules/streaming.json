@@ -1,0 +1,5 @@
+[
+  { "id": 1, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||edge.ads.twitch.tv^" } },
+  { "id": 2, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||dmcdn.net/playerv5/dmp.advertising.*.js", "initiatorDomains": ["dailymotion.com"] } },
+  { "id": 3, "priority": 1, "action": { "type": "block" }, "condition": { "urlFilter": "||spotify.com/ad-logic/" } }
+]
