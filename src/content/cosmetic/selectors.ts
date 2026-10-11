@@ -1,3 +1,5 @@
+import { ADULT_HOST_SELECTORS } from './adult-selectors.ts'
+
 /**
  * Conservative generic element-hiding selectors, derived from the generic section of
  * EasyList. Only selectors that are unambiguous ad containers are included so that
@@ -84,6 +86,11 @@ export const GENERIC_SELECTORS: readonly string[] = [
   '.ad-320x50',
   '.ad-300x600',
   '.ad-160x600',
+  '.adsbyexoclick',
+  '.adsbyexoclick-wrapper',
+  '.adsbytrafficjunky',
+  'a[href^="https://juicyads.in/"]',
+  'a[href^="https://syndication.exoclick.com/"]',
 ]
 
 /** Site-specific selectors, keyed by hostname (subdomains included). */
@@ -132,7 +139,7 @@ export const HOST_SELECTORS: Readonly<Record<string, readonly string[]>> = {
 export function selectorsForHost(hostname: string): string[] {
   const host = hostname.toLowerCase()
   const matched: string[] = []
-  for (const [domain, selectors] of Object.entries(HOST_SELECTORS)) {
+  for (const [domain, selectors] of [...Object.entries(HOST_SELECTORS), ...Object.entries(ADULT_HOST_SELECTORS)]) {
     if (host === domain || host.endsWith(`.${domain}`)) matched.push(...selectors)
   }
   return matched

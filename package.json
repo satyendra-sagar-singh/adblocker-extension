@@ -15,6 +15,7 @@
     "test:e2e": "node --test \"test/e2e/**/*.e2e.ts\"",
     "validate:rules": "node scripts/validate-rules.ts",
     "filters:update": "node scripts/update-filters.ts",
+    "filters:adult": "node scripts/update-adult-filters.ts",
     "icons": "node scripts/generate-icons.ts",
     "check": "npm run typecheck && npm run validate:rules && npm test",
     "package": "node scripts/package.ts",

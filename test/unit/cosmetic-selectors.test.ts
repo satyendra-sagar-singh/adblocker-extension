@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
+import { ADULT_HOST_SELECTORS } from '../../src/content/cosmetic/adult-selectors.ts'
 import { HOST_SELECTORS, selectorsForHost } from '../../src/content/cosmetic/selectors.ts'
 
 describe('selectorsForHost', () => {
@@ -12,13 +13,21 @@ describe('selectorsForHost', () => {
     assert.ok(selectorsForHost('www.crunchyroll.com').includes('#template_skin_leaderboard'))
   })
 
+  it('applies adult-site selectors to the site and its subdomains', () => {
+    assert.ok(selectorsForHost('www.pornhub.com').includes('.sideAds'))
+    assert.ok(selectorsForHost('fr.xhamster.com').includes('.video-view-ads'))
+    assert.ok(selectorsForHost('www.xvideos.com').includes('.thumb-ad'))
+    assert.ok(selectorsForHost('www.tube8.fr').includes('ins[data-spot]'))
+    assert.deepEqual(selectorsForHost('www.example.com'), [])
+  })
+
   it('does not leak selectors to lookalike hosts', () => {
     assert.deepEqual(selectorsForHost('nottwitch.tv'), [])
     assert.deepEqual(selectorsForHost('spotify.com.example.org'), [])
   })
 
   it('has no duplicate selectors per host', () => {
-    for (const [host, selectors] of Object.entries(HOST_SELECTORS)) {
+    for (const [host, selectors] of [...Object.entries(HOST_SELECTORS), ...Object.entries(ADULT_HOST_SELECTORS)]) {
       assert.equal(new Set(selectors).size, selectors.length, host)
     }
   })

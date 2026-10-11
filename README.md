@@ -9,7 +9,7 @@ that still reaches the player is skipped, promoted content is hidden, and the
 
 | Layer | Mechanism | Where |
 |---|---|---|
-| Network blocking | `declarativeNetRequest` static rulesets (`youtube`, `ads_core`, `trackers`, `streaming`, optional `easylist`) | `src/rules/*.json` |
+| Network blocking | `declarativeNetRequest` static rulesets (`youtube`, `ads_core`, `trackers`, `streaming`, `adult`, optional `easylist`) | `src/rules/*.json` |
 | Per-site pause | Dynamic `allowAllRequests` rule per whitelisted host, plus content scripts excluded on that host | `src/background/dynamic-rules.ts`, `src/background/content-scripts.ts` |
 | Custom filters | EasyList-syntax lines converted to dynamic rules at save time | `src/filters/abp-to-dnr.ts` |
 | YouTube data pruning | MAIN-world script at `document_start`: hooks `JSON.parse` / `Response.prototype.json`, intercepts `ytInitialPlayerResponse` / `ytInitialData`, pins anti-ad-block flags | `src/content/youtube/main-world.ts` |
@@ -50,7 +50,12 @@ and press the reload icon on the extension card.
 
 Four hand-maintained rulesets ship with the extension (`src/rules/`); `streaming` holds
 site-specific ad rules for Twitch, Dailymotion and Spotify, whose element-hiding selectors (plus
-Vimeo and Crunchyroll) live in `HOST_SELECTORS` in `src/content/cosmetic/selectors.ts`. To add the full
+Vimeo and Crunchyroll) live in `HOST_SELECTORS` in `src/content/cosmetic/selectors.ts`.
+
+The `adult` ruleset is generated from EasyList Adult plus the main adult ad networks
+(TrafficJunky, ExoClick, JuicyAds, ...) and is committed, so it ships enabled. Regenerate it
+with `npm run filters:adult`. Element-hiding selectors for the major adult video sites live in
+`src/content/cosmetic/adult-selectors.ts`. To add the full
 EasyList + EasyPrivacy + Peter Lowe's list converted to `declarativeNetRequest` rules:
 
 ```bash
@@ -77,6 +82,7 @@ the total stays under Chrome's 30,000 guaranteed static rule budget.
 | `npm run check` | typecheck + rule validation + unit tests |
 | `npm run test:all` | `check` + build + e2e |
 | `npm run filters:update` | Regenerate the optional EasyList ruleset |
+| `npm run filters:adult` | Regenerate the shipped adult-site ruleset from EasyList Adult |
 | `npm run icons` | Regenerate the PNG icons |
 
 The e2e suite needs `openssl` on `PATH` (it mints a throwaway certificate; YouTube is

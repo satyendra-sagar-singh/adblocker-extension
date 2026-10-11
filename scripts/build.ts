@@ -42,6 +42,7 @@ const RULE_FILES: Record<string, string> = {
   ads_core: 'rules/ads-core.json',
   trackers: 'rules/trackers.json',
   streaming: 'rules/streaming.json',
+  adult: 'rules/adult.json',
 }
 
 const OPTIONAL_RULE_FILES: Record<string, string> = {

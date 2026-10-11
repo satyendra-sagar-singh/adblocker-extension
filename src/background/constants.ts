@@ -3,6 +3,7 @@ export const RULESET_YOUTUBE = 'youtube'
 export const RULESET_ADS_CORE = 'ads_core'
 export const RULESET_TRACKERS = 'trackers'
 export const RULESET_STREAMING = 'streaming'
+export const RULESET_ADULT = 'adult'
 export const RULESET_EASYLIST = 'easylist'
 
 /** Dynamic rule id ranges. Whitelist rules and custom filters never overlap. */

@@ -196,6 +196,9 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
       { url: 'https://spclient.wg.spotify.com/ad-logic/state/config', type: 'xmlhttprequest', initiator: 'https://open.spotify.com', expect: 'block' },
       { url: 'https://player-telemetry.vimeo.com/player-events/log', type: 'xmlhttprequest', initiator: 'https://player.vimeo.com', expect: 'block' },
       { url: 'https://usher.ttvnw.net/api/channel/hls/x.m3u8', type: 'xmlhttprequest', initiator: 'https://www.twitch.tv', expect: 'none', ownRulesOnly: true },
+      { url: 'https://ads.trafficjunky.net/ads?zone_id=1', type: 'script', initiator: 'https://www.pornhub.com', expect: 'block' },
+      { url: 'https://a.magsrv.com/ad-provider.js', type: 'script', initiator: 'https://www.xvideos.com', expect: 'block' },
+      { url: 'https://www.pornhub.com/view_video.php?viewkey=x', type: 'main_frame', expect: 'none' },
       { url: 'https://www.example.com/', type: 'main_frame', expect: 'none' },
     ]
 
