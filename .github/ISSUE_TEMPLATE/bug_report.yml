@@ -1,0 +1,65 @@
+name: Bug report
+description: An ad is not blocked, or a site breaks with the extension enabled
+labels: [bug]
+body:
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: The exact page where it happens.
+      placeholder: https://www.example.com/watch?v=...
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem?
+      options:
+        - An ad or tracker is still shown
+        - The site is broken or does not load
+        - A YouTube ad is not skipped, or the "ad blockers are not allowed" dialog appears
+        - Popup or options page problem
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead. Screenshots help.
+    validations:
+      required: true
+  - type: checkboxes
+    id: isolation
+    attributes:
+      label: Isolation check
+      options:
+        - label: The problem goes away when I pause the extension on this site (popup → site toggle)
+        - label: I have no other ad blocker enabled
+  - type: input
+    id: extension-version
+    attributes:
+      label: Extension version
+      description: Shown on chrome://extensions.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: chrome-version
+    attributes:
+      label: Chrome version and OS
+      placeholder: Chrome 140, macOS 15
+    validations:
+      required: true
+  - type: textarea
+    id: settings
+    attributes:
+      label: Settings
+      description: Which options are on (tracker blocking, element hiding, YouTube options) and any custom filters.
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Security check
+      options:
+        - label: This is not a security vulnerability (those go through a private security advisory, never public issues)
+          required: true

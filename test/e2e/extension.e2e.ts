@@ -174,7 +174,7 @@ describe('extension end-to-end', { timeout: 180000 }, () => {
     const cases: Array<{ url: string; type: string; initiator?: string; expect: 'block' | 'allow' | 'none'; ownRulesOnly?: boolean }> = [
       { url: 'https://www.youtube.com/pagead/interaction/?ai=abc', type: 'xmlhttprequest', initiator: youtube, expect: 'block' },
       { url: 'https://www.youtube.com/api/stats/ads?ver=2', type: 'xmlhttprequest', initiator: youtube, expect: 'block' },
-      { url: 'https://www.youtube.com/ptracking?html5=1', type: 'image', initiator: youtube, expect: 'block' },
+      { url: 'https://www.youtube.com/ptracking?html5=1&video_id=abc&cpn=xyz&ei=e1&ptk=youtube_none&pltype=content', type: 'image', initiator: youtube, expect: 'block' },
       { url: 'https://googleads.g.doubleclick.net/pagead/id', type: 'xmlhttprequest', initiator: youtube, expect: 'block' },
       { url: 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false', type: 'xmlhttprequest', initiator: youtube, expect: 'none' },
       { url: 'https://www.youtube.com/youtubei/v1/next?prettyPrint=false', type: 'xmlhttprequest', initiator: youtube, expect: 'none' },

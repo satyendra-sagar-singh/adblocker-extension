@@ -59,6 +59,9 @@
   {"id": 58, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||doubleverify.com^", "domainType": "thirdParty"}},
   {"id": 59, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||sitescout.com^", "domainType": "thirdParty"}},
   {"id": 60, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||tynt.com^", "domainType": "thirdParty"}},
+  {"id": 69, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||youtube.com/ptracking?html5=1&video_id=*&cpn=*&ei=*&ptk=youtube_*&pltype=content"}},
+  {"id": 70, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||youtube-nocookie.com/ptracking?"}},
+  {"id": 71, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||youtubekids.com/ptracking?"}},
   {"id": 61, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||youtube.com/youtubei/v1/log_event"}},
   {"id": 62, "priority": 1, "action": {"type": "block"}, "condition": {"urlFilter": "||youtube-nocookie.com/youtubei/v1/log_event"}}
 ]
